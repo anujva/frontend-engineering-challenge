@@ -6,21 +6,48 @@ This will be used to quickly find a feed that was new and then just add that dat
 */
 
 class SaveFeeds{
-	var $arrayOfApi;
+	private $arrayOfApi = array();
 
 	function __construct($arrApi){
 		$this->arrayOfApi = $arrApi;
 	}
 
 	public function getApiJSON(){
-		$json = file_get_contents("http://rack1.citizennet.com/interviewtest/api?file=posts.json&access_token=AAAAAL2uajO8BAPcqOwZB6");
-		$response = $http_response_header[0];
-		if(strpos($response, "503") !== false){
-			throw new Exception("503");
-			return;
+		
+		var $json = array();
+		var $handle;
+		var $file_read;
+		var $file_array;
+
+		if(file_exists("datastore.txt")){
+			if($handle = 	fopen("datastore.txt", "r+")){
+				$file_read = fread($handle, filesize("datastore.txt"));
+				$file_array = json_decode($file_read);
+			}else{
+				echo " Permissions problem probably !! ";
+			}
+		}else{
+			//No feeds have been stored yet
 		}
 
-		echo $json;
+		foreach($this->arrayOfApi as &$arrayApi){
+			$json = json_decode(file_get_contents($arrayApi), true);
+			$response = $http_response_header[0];
+			if(strpos($response, "503") !== false){
+				throw new Exception("503");
+				return;
+			}else{
+				checkIds($json);
+			}
+		}
+	}
+
+	public function checkIds($json){
+		if(!is_null($json)){
+			foreach($json['data'] as $datafeed){
+				
+			}
+		}
 	}
 }
 
@@ -32,4 +59,5 @@ try{
 }catch(Exception $e){
 	echo "Caught Exception: ", $e->getMessage(), "\n";
 }
+
 ?>
